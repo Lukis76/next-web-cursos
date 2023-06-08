@@ -16,7 +16,12 @@
   "dependencies": {
     "@hookform/resolvers": "^3.1.0",
     "@next-auth/prisma-adapter": "1.0.x",
-    "@tanstack/react-query": "4.29.x",
+    "@tanstack/react-query": "4.29.12",
+    "@trpc/client": "^10.29.1",
+    "@trpc/next": "^10.29.1",
+    "@trpc/react-query": "^10.29.1",
+    "@trpc/server": "^10.29.1",
+    "bcrypt-ts": "^3.0.1",
     "next": "13.4.x",
     "next-auth": "4.22.x",
     "react": "18.2.x",
