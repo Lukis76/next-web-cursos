@@ -1,13 +1,17 @@
+import { prisma } from "@/server/db";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
-  type NextAuthOptions,
   type DefaultSession,
+  type NextAuthOptions,
 } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
-import { env } from "@/env.mjs";
-import { prisma } from "@/server/db";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GithubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
+import { compare } from "../../lib/crypto";
+import { TLogin } from "../../types/schema";
+import { getCredential } from "./credentialsProviders";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -47,9 +51,45 @@ export const authOptions: NextAuthOptions = {
   },
   adapter: PrismaAdapter(prisma),
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
+    GoogleProvider({
+      clientId: getCredential().google.clientId,
+      clientSecret: getCredential().google.clientSecret,
+    }),
+    GithubProvider({
+      clientId: getCredential().github.clientId,
+      clientSecret: getCredential().github.clientSecret,
+    }),
+    CredentialsProvider({
+      type: "credentials",
+      credentials: {},
+      async authorize(credentials, _req) {
+        /**
+         * verificamos que tenemos las credentials
+         */
+        const { email, password } = credentials as TLogin;
+        if (!email && !password) {
+          throw new Error("Email and password is required");
+        }
+        /**
+         * cheked user existing
+         */
+
+        const user = await prisma.user.findUnique({
+          where: { email },
+        });
+        if (!user) {
+          throw new Error("User not found");
+        }
+        /**
+         * compare password and passwordHash
+         */
+        const verifyPassword = compare(password, user.password);
+        if (!verifyPassword) {
+          throw new Error("Credentials does not match!");
+        }
+
+        return user;
+      },
     }),
     /**
      * ...add more providers here.
