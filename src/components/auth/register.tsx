@@ -1,35 +1,41 @@
-import { InputForm } from "@/components/auth/inputForm";
-// import { TLoginFormData, loginUserForm } from '@/lib/validations/login'
-import { LoginSchema, type TLogin } from "@/types/schema";
+import { InputForm } from "@/components";
+import { RegisterSchema, type TRegister } from "@/types";
+import { trpc } from "@/utils/trpc";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
-// import { useMutation } from '@tanstack/react-query'
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
-export const Login = () => {
+export const Register = () => {
+  const mutation = trpc.authentication.register.useMutation();
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<TLogin>({
+  } = useForm<TRegister>({
     mode: "onBlur",
     reValidateMode: "onChange",
 
-    resolver: zodResolver(LoginSchema),
+    resolver: zodResolver(RegisterSchema),
   });
 
-  const onSubmit: SubmitHandler<TLogin> = async (data): Promise<void> => {
-    await signIn("credentials", {
-      ...data,
-      redirect: false,
-    });
-
-    // router.push('/home')
+  const onSubmit = async (data: TRegister): Promise<void> => {
+    await mutation.mutate(data);
   };
 
   return (
     <form className="mt-6 w-full max-w-xs" onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-5">
+        <InputForm
+          type="text"
+          name="name"
+          label="Nick Name"
+          placeholder="Enter Nick Name"
+          autofocus={true}
+          register={register("name", {
+            disabled: isSubmitting,
+          })}
+          errors={errors.name}
+        />
+
         <InputForm
           type="email"
           name="email"
@@ -60,11 +66,8 @@ export const Login = () => {
         className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-500 px-4 py-3 font-semibold text-white transition-all duration-100 hover:bg-indigo-400
               focus:bg-indigo-400 disabled:bg-zinc-500 disabled:opacity-30"
       >
-        Log In
+        Register
       </button>
     </form>
   );
 };
-
-
-// 

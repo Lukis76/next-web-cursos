@@ -7,11 +7,11 @@ import {
   type NextAuthOptions,
 } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GithubProvider from "next-auth/providers/github";
-import GoogleProvider from "next-auth/providers/google";
+// import GithubProvider from "next-auth/providers/github";
+// import GoogleProvider from "next-auth/providers/google";
 import { compare } from "../../lib/crypto";
-import { TLogin } from "../../types/schema";
-import { getCredential } from "./credentialsProviders";
+import type { TLogin } from "@/types";
+// import { getCredential } from "./credentialsProviders";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -51,14 +51,14 @@ export const authOptions: NextAuthOptions = {
   },
   adapter: PrismaAdapter(prisma),
   providers: [
-    GoogleProvider({
-      clientId: getCredential().google.clientId,
-      clientSecret: getCredential().google.clientSecret,
-    }),
-    GithubProvider({
-      clientId: getCredential().github.clientId,
-      clientSecret: getCredential().github.clientSecret,
-    }),
+    // GoogleProvider({
+    //   clientId: getCredential().google.clientId,
+    //   clientSecret: getCredential().google.clientSecret,
+    // }),
+    // GithubProvider({
+    //   clientId: getCredential().github.clientId,
+    //   clientSecret: getCredential().github.clientSecret,
+    // }),
     CredentialsProvider({
       type: "credentials",
       credentials: {},

@@ -1,12 +1,33 @@
-import React from 'react'
-import { LayoutSign } from '@/components/layouts/sign.layout'
+import { LayoutSign, Login, Register } from "@/components";
+import type { InferGetServerSidePropsType } from "next";
 
-const Sign = () => {
+const Sign = ({
+  page,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
-    <LayoutSign >
-      autentication
+    <LayoutSign>
+      {page === "login" && <Login />}
+      {page === "register" && <Register />}
     </LayoutSign>
-  )
-}
+  );
+};
 
-export default Sign
+export const getServerSideProps = (ctx: { query: { sign: string } }) => {
+  // si no coinside la ruta dinamica con login o register redireccionamos a login
+
+  if (ctx.query.sign !== "login" && ctx.query.sign !== "register") {
+    return {
+      redirect: {
+        destination: "/auth/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {
+      page: ctx.query.sign,
+    },
+  };
+};
+
+export default Sign;
