@@ -1,13 +1,17 @@
 import { prisma } from "@/server/db";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { type GetServerSidePropsContext } from "next";
-import { getServerSession, type NextAuthOptions } from "next-auth";
+import {
+  getServerSession,
+  type DefaultSession,
+  type NextAuthOptions,
+} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 // import GithubProvider from "next-auth/providers/github";
 // import GoogleProvider from "next-auth/providers/google";
-import type { TLogin } from "@/types";
-import { env } from "../../env.mjs";
-import { compare } from "../../lib/crypto";
+import { LoginSchema } from "@/types";
+import { type GetServerSidePropsContext } from "next";
+import { env } from "@/env.mjs";
+import { compare } from "@/lib/crypto";
 // import { getCredential } from "./credentialsProviders";
 
 /**
@@ -16,20 +20,20 @@ import { compare } from "../../lib/crypto";
  *
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
-// declare module "next-auth" {
-//   interface Session extends DefaultSession {
-//     user: {
-//       id: string;
-//       // ...other properties
-//       // role: UserRole;
-//     } & DefaultSession["user"];
-//   }
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      // ...other properties
+      // role: UserRole;
+    } & DefaultSession["user"];
+  }
 
-//   // interface User {
-//   //   // ...other properties
-//   //   // role: UserRole;
-//   // }
-// }
+  // interface User {
+  //   // ...other properties
+  //   // role: UserRole;
+  // }
+}
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
@@ -50,7 +54,18 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       type: "credentials",
-      credentials: {},
+      credentials: {
+        email: {
+          label: "Email",
+          type: "email",
+          placeholder: "Insert Email",
+        },
+        password: {
+          label: "Password",
+          type: "password",
+          placeholder: "Password",
+        },
+      },
       async authorize(credentials, _req) {
         console.log(
           "🚀 ~ file: auth.ts:77 ~ authorize ~ credentials:",
@@ -60,7 +75,7 @@ export const authOptions: NextAuthOptions = {
         /**
          * verificamos que tenemos las credentials
          */
-        const { email, password } = credentials as TLogin;
+        const { email, password } = LoginSchema.parse(credentials);
         if (!email && !password) {
           throw new Error("Email and password is required");
         }
@@ -95,13 +110,24 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  session: {
+    strategy: "jwt",
+  },
+  pages: {
+    signIn: "auth/login",
+  },
   secret: env.NEXTAUTH_SECRET,
+
   callbacks: {
-    session: ({ session, user }) => {
-      console.log(
-        "🚀 ~ file: auth.ts:107 ~ export  authOptions: NextAuthOptions.callbacks.user:",
-        user
-      );
+    jwt({ token, account, user }) {
+      if (account) {
+        token.accesstoken = account.access_token;
+        token.id = user.id;
+      }
+
+      return token;
+    },
+    session: ({ session, token }) => {
       console.log(
         "🚀 ~ file: auth.ts:107 ~ export  authOptions: NextAuthOptions.callbacks.session:",
         session
@@ -110,7 +136,7 @@ export const authOptions: NextAuthOptions = {
         ...session,
         user: {
           ...session.user,
-          id: user.id,
+          id: token.id,
         },
       };
     },
@@ -128,3 +154,4 @@ export const getServerAuthSession = (ctx: {
 }) => {
   return getServerSession(ctx.req, ctx.res, authOptions);
 };
+// getServerSession(req, res, authOptions)

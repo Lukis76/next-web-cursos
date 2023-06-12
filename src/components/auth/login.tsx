@@ -24,9 +24,8 @@ export const Login = () => {
       data
     );
     const result = await signIn("credentials", {
-      callbackUrl: "http://localhost:3000/",
-      redirect: false,
-      ...data,
+      email: data.email,
+      password: data.password,
     });
     console.log(
       "🚀 ~ file: login.tsx:31 ~ constonSubmit:SubmitHandler<TLogin>= ~ result:",

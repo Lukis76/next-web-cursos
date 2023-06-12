@@ -8,11 +8,13 @@ const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
+  console.log("🚀 ~ file: _app.tsx:11 ~ pageProps:", pageProps)
+  console.log("🚀 ~ file: _app.tsx:11 ~ session:", session)
   return (
-    // <SessionProvider session={session}>
+    <SessionProvider session={session}>
       <Component {...pageProps} />
-    // </SessionProvider>
+    </SessionProvider>
   );
 };
-
+// export default MyApp
 export default trpc.withTRPC(MyApp);
