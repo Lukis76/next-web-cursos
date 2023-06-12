@@ -19,10 +19,19 @@ export const Login = () => {
   });
 
   const onSubmit: SubmitHandler<TLogin> = async (data): Promise<void> => {
-    await signIn("credentials", {
-      ...data,
+    console.log(
+      "🚀 ~ file: login.tsx:22 ~ constonSubmit:SubmitHandler<TLogin>= ~ data:",
+      data
+    );
+    const result = await signIn("credentials", {
+      callbackUrl: "http://localhost:3000/",
       redirect: false,
+      ...data,
     });
+    console.log(
+      "🚀 ~ file: login.tsx:31 ~ constonSubmit:SubmitHandler<TLogin>= ~ result:",
+      result
+    );
 
     // router.push('/home')
   };
@@ -32,7 +41,6 @@ export const Login = () => {
       <div className="flex flex-col gap-6">
         <InputForm
           type="email"
-          name="email"
           label="Email Address"
           placeholder="Enter Email Address"
           autofocus={true}
@@ -44,7 +52,6 @@ export const Login = () => {
 
         <InputForm
           type="password"
-          name="password"
           label="Password"
           placeholder="Enter Password"
           autofocus={true}
@@ -66,5 +73,4 @@ export const Login = () => {
   );
 };
 
-
-// 
+//

@@ -1,16 +1,13 @@
 import { prisma } from "@/server/db";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { type GetServerSidePropsContext } from "next";
-import {
-  getServerSession,
-  type DefaultSession,
-  type NextAuthOptions,
-} from "next-auth";
+import { getServerSession, type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 // import GithubProvider from "next-auth/providers/github";
 // import GoogleProvider from "next-auth/providers/google";
-import { compare } from "../../lib/crypto";
 import type { TLogin } from "@/types";
+import { env } from "../../env.mjs";
+import { compare } from "../../lib/crypto";
 // import { getCredential } from "./credentialsProviders";
 
 /**
@@ -19,20 +16,20 @@ import type { TLogin } from "@/types";
  *
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      // ...other properties
-      // role: UserRole;
-    } & DefaultSession["user"];
-  }
+// declare module "next-auth" {
+//   interface Session extends DefaultSession {
+//     user: {
+//       id: string;
+//       // ...other properties
+//       // role: UserRole;
+//     } & DefaultSession["user"];
+//   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
-}
+//   // interface User {
+//   //   // ...other properties
+//   //   // role: UserRole;
+//   // }
+// }
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
@@ -40,15 +37,6 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
-  callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
-  },
   adapter: PrismaAdapter(prisma),
   providers: [
     // GoogleProvider({
@@ -60,9 +48,15 @@ export const authOptions: NextAuthOptions = {
     //   clientSecret: getCredential().github.clientSecret,
     // }),
     CredentialsProvider({
+      name: "Credentials",
       type: "credentials",
       credentials: {},
       async authorize(credentials, _req) {
+        console.log(
+          "🚀 ~ file: auth.ts:77 ~ authorize ~ credentials:",
+          credentials
+        );
+
         /**
          * verificamos que tenemos las credentials
          */
@@ -101,6 +95,26 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  secret: env.NEXTAUTH_SECRET,
+  callbacks: {
+    session: ({ session, user }) => {
+      console.log(
+        "🚀 ~ file: auth.ts:107 ~ export  authOptions: NextAuthOptions.callbacks.user:",
+        user
+      );
+      console.log(
+        "🚀 ~ file: auth.ts:107 ~ export  authOptions: NextAuthOptions.callbacks.session:",
+        session
+      );
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+        },
+      };
+    },
+  },
 };
 
 /**

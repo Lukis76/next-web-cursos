@@ -17,8 +17,8 @@ export const Register = () => {
     resolver: zodResolver(RegisterSchema),
   });
 
-  const onSubmit = async (data: TRegister): Promise<void> => {
-    await mutation.mutate(data);
+  const onSubmit = (data: TRegister): void => {
+    mutation.mutate(data);
   };
 
   return (
@@ -26,7 +26,6 @@ export const Register = () => {
       <div className="flex flex-col gap-5">
         <InputForm
           type="text"
-          name="name"
           label="Nick Name"
           placeholder="Enter Nick Name"
           autofocus={true}
@@ -38,7 +37,6 @@ export const Register = () => {
 
         <InputForm
           type="email"
-          name="email"
           label="Email Address"
           placeholder="Enter Email Address"
           autofocus={true}
@@ -50,7 +48,6 @@ export const Register = () => {
 
         <InputForm
           type="password"
-          name="password"
           label="Password"
           placeholder="Enter Password"
           autofocus={true}
