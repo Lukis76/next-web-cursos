@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 export const Register = () => {
-  const mutation = trpc.authentication.register.useMutation();
+  const { mutate } = trpc.authentication.register.useMutation();
   const {
     register,
     handleSubmit,
@@ -18,7 +18,7 @@ export const Register = () => {
   });
 
   const onSubmit = (data: TRegister): void => {
-    mutation.mutate(data);
+    mutate(data);
   };
 
   return (

@@ -78,7 +78,7 @@ export const trpc = createTRPCNext<AppRouter>({
    *
    * @see https://trpc.io/docs/nextjs#ssr-boolean-default-false
    */
-  ssr: true,
+  ssr: false,
 });
 
 /**
