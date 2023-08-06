@@ -3,13 +3,8 @@
 import { Input, LinkForgotPassword } from "@/components";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginUserSchema } from "@/lib/validations/login";
+import { loginUserSchema, Inputs } from "@/lib/validations/login";
 import { SpinerLoading, SvgLoading } from "@/assets/loading";
-
-type Inputs = {
-  email: string;
-  password: string;
-};
 
 const defaultValues = {
   email: "",
